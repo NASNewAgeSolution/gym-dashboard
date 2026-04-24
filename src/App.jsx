@@ -91,7 +91,7 @@ function getTotalKg(wh){
 /* ─── STORAGE ────────────────────────────────────────────── */
 // ─── SUPABASE CONFIG ─────────────────────────────────────────
 // Paste your Supabase URL and anon key here:
-const SUPA_URL = 'https://qfmjuqhcheesnsifbqky.supabase.co/rest/v1/';       // e.g. https://xxxxx.supabase.co
+const SUPA_URL = 'https://qfmjuqhcheesnsifbqky.supabase.co';       // e.g. https://xxxxx.supabase.co
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbWp1cWhjaGVlc25zaWZicWt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjUzMTksImV4cCI6MjA5MjYwMTMxOX0.s-MpJWvS_hKCpnG3a4EvgWmfoh1NK0BeSI03TM45aYU';  // starts with eyJ...
 
 async function supaGet(key) {
