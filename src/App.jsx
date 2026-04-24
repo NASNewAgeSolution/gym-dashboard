@@ -89,11 +89,60 @@ function getTotalKg(wh){
 }
 
 /* ─── STORAGE ────────────────────────────────────────────── */
-const DB={
-  async get(k){try{const v=localStorage.getItem('gd_'+k);return v?JSON.parse(v):null}catch{return null}},
-  async set(k,v){try{localStorage.setItem('gd_'+k,JSON.stringify(v))}catch{}},
-  async getS(k){try{const v=localStorage.getItem('gds_'+k);return v?JSON.parse(v):null}catch{return null}},
-  async setS(k,v){try{localStorage.setItem('gds_'+k,JSON.stringify(v))}catch{}},
+// ─── SUPABASE CONFIG ─────────────────────────────────────────
+// Paste your Supabase URL and anon key here:
+const SUPA_URL = 'https://qfmjuqhcheesnsifbqky.supabase.co/rest/v1/';       // e.g. https://xxxxx.supabase.co
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbWp1cWhjaGVlc25zaWZicWt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjUzMTksImV4cCI6MjA5MjYwMTMxOX0.s-MpJWvS_hKCpnG3a4EvgWmfoh1NK0BeSI03TM45aYU';  // starts with eyJ...
+
+async function supaGet(key) {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/gym_data?key=eq.${encodeURIComponent(key)}&select=value`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const rows = await res.json();
+    return rows?.[0]?.value ? JSON.parse(rows[0].value) : null;
+  } catch { return null; }
+}
+
+async function supaSet(key, value) {
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/gym_data`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ key, value: JSON.stringify(value) })
+    });
+  } catch {}
+}
+
+// Local cache so reads are instant after first load
+const _cache = {};
+
+const DB = {
+  async get(k) {
+    if (_cache[k] !== undefined) return _cache[k];
+    const v = await supaGet('gd_' + k);
+    _cache[k] = v;
+    return v;
+  },
+  async set(k, v) {
+    _cache[k] = v;
+    await supaSet('gd_' + k, v);
+  },
+  async getS(k) {
+    if (_cache['s_'+k] !== undefined) return _cache['s_'+k];
+    const v = await supaGet('gds_' + k);
+    _cache['s_'+k] = v;
+    return v;
+  },
+  async setS(k, v) {
+    _cache['s_'+k] = v;
+    await supaSet('gds_' + k, v);
+  },
 };
 
 /* ─── SCHEDULE / PROGRAM HELPERS ────────────────────────── */
